@@ -1,0 +1,8 @@
+# Common settings (Linux)
+
+[settings]
+compiler=gcc
+compiler.version=9
+compiler.libcxx=libstdc++11
+compiler.cppstd = gnu17
+os=Linux

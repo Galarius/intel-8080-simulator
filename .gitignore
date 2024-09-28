@@ -1,0 +1,41 @@
+# Xcode
+
+## Build generated
+build/
+DerivedData/
+
+## Various settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+## Other
+*.log
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+.DS_Store
+Testing
+
+## Conan
+.conan*
+CMakeUserPresets.json
+test_package/*
+!test_package/conanfile.py
+
+## build.py
+.build*
+
+## VS Code
+.vs
+.vscode
+CMakePresets.json
+
+## Python
+.pyenv

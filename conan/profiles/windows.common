@@ -1,0 +1,8 @@
+# Common settings (Windows)
+
+[settings]
+compiler=msvc
+compiler.cppstd=17
+compiler.runtime=dynamic
+compiler.version=193
+os=Windows

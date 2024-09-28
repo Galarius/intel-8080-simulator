@@ -1,0 +1,7 @@
+#pragma once
+
+namespace ocls {
+
+const char version[] = "${PROJECT_VERSION}";
+
+}

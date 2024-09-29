@@ -3,12 +3,14 @@ set(sources
     log.cpp
     utils.cpp
     alu.cpp
+    memory.cpp
 )
 list(TRANSFORM sources PREPEND "${PROJECT_SOURCE_DIR}/src/")
 set(test_sources
     main.cpp
     modules.cpp
     alu-tests.cpp
+    memory-tests.cpp
 )
 set(libs GTest::gmock spdlog::spdlog SystemC::systemc)
 if(LINUX)

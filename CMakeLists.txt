@@ -51,12 +51,14 @@ endif()
 
 set(headers
     alu.hpp
+    memory.hpp
     log.hpp
     utils.hpp
 )
 
 set(sources
     alu.cpp
+    memory.cpp
     main.cpp
     log.cpp
     utils.cpp

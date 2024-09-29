@@ -7,6 +7,7 @@
 ## Implemented modules
 
 * Arithmetic and Logic Unit (ALU)
+* 64 kB memory
 
 ## Disclaimer
 

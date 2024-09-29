@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv)
 {
-    sim::ConfigureNullLogging();
+    sim::ConfigureFileLogging("simulator-tests.log", spdlog::level::trace);
     ::testing::InitGoogleTest(&argc, argv);
     const int result = RUN_ALL_TESTS();
     sc_core::sc_stop();

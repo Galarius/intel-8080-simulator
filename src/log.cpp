@@ -21,6 +21,7 @@ namespace sim {
 
 std::string LogName::main = "sim";
 std::string LogName::alu = "alu";
+std::string LogName::memory = "memory";
 
 const int flushIntervalSec = 5;
 
@@ -45,6 +46,7 @@ void ConfigureLogging(bool fileLogging, const std::string& filename, spdlog::lev
         spdlog::set_level(level);
         std::vector<std::shared_ptr<spdlog::logger>> subLoggers = {
             std::make_shared<spdlog::logger>(LogName::alu, sinks.begin(), sinks.end()),
+            std::make_shared<spdlog::logger>(LogName::memory, sinks.begin(), sinks.end()),
         };
 
         for (const auto& logger : subLoggers)

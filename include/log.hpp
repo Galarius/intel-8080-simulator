@@ -14,6 +14,7 @@ struct LogName
 {
     static std::string main;
     static std::string alu;
+    static std::string memory;
 };
 
 extern void ConfigureFileLogging(const std::string& filename, spdlog::level::level_enum level);

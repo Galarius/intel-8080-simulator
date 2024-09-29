@@ -52,6 +52,8 @@ endif()
 set(headers
     alu.hpp
     memory.hpp
+    memory.tpp
+    cu.hpp
     log.hpp
     utils.hpp
 )
@@ -59,6 +61,7 @@ set(headers
 set(sources
     alu.cpp
     memory.cpp
+    cu.cpp
     main.cpp
     log.cpp
     utils.cpp

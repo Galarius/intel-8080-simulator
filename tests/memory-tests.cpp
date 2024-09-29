@@ -13,8 +13,10 @@
 using namespace sc_core;
 using namespace sim;
 
+static constexpr size_t MemorySize = 65536;    // 64 KB
+
 class MemoryTest final {
-    Memory memory{"Memory"};
+    Memory<MemorySize> memory {"Memory"};
 public:
     // Signal declarations
     sc_core::sc_signal<sc_dt::sc_uint<16>> address;
@@ -32,7 +34,7 @@ public:
         memory.write(write);
     }
 
-    void load(const std::array<uint8_t, Memory::size>& data) {
+    void load(const std::array<uint8_t, MemorySize>& data) {
         memory.load(data);
     }
 };
@@ -61,7 +63,7 @@ TEST(MemoryTests, ReadWriteTest) {
 
 TEST(MemoryTests, LoadDataTest) {
     auto mem = modules::get<MemoryTest>();
-    std::array<uint8_t, Memory::size> data = {
+    std::array<uint8_t, MemorySize> data = {
         // 256 zeros (reserved)
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 

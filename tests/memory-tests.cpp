@@ -15,7 +15,7 @@ using namespace sim;
 
 static constexpr size_t MemorySize = 65536;    // 64 KB
 
-class MemoryTest final {
+class MemoryConsumer final {
     Memory<MemorySize> memory {"Memory"};
 public:
     // Signal declarations
@@ -25,7 +25,7 @@ public:
     sc_core::sc_signal<bool> read;
     sc_core::sc_signal<bool> write;
 
-    MemoryTest() {
+    MemoryConsumer() {
         // Bind signals to Memory ports
         memory.address(address);
         memory.dataIn(dataIn);
@@ -40,10 +40,10 @@ public:
 };
 
 // We need to create all modules and set all signals before starting any simulations.
-static modules::add<MemoryTest> gALU;
+static modules::add<MemoryConsumer> gMemory;
 
-TEST(MemoryTests, ReadWriteTest) {
-    auto mem = modules::get<MemoryTest>();
+TEST(MemoryConsumers, ReadWriteTest) {
+    auto mem = modules::get<MemoryConsumer>();
 
     // Write to memory
     mem->address.write(0x05);
@@ -61,8 +61,8 @@ TEST(MemoryTests, ReadWriteTest) {
     mem->read.write(false); // Reset read signal
 }
 
-TEST(MemoryTests, LoadDataTest) {
-    auto mem = modules::get<MemoryTest>();
+TEST(MemoryConsumers, LoadDataTest) {
+    auto mem = modules::get<MemoryConsumer>();
     std::array<uint8_t, MemorySize> data = {
         // 256 zeros (reserved)
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 

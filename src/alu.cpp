@@ -35,22 +35,22 @@ ALU::ALU(sc_module_name name)
     : sc_module(std::move(name)) {
     SC_METHOD(execute);
     // Ensure the ALU recalculates when any of these change
-    sensitive << inA << inArg << inOpCode;
+    sensitive << accumulator << operand << opcode;
 }
 
 void ALU::execute() {
-    const sc_uint<8> a = inA.read();
-    const sc_uint<8> b = inArg.read();
-    const sc_uint<4> opcode = inOpCode.read();
+    const sc_uint<8> a = accumulator.read();
+    const sc_uint<8> b = operand.read();
+    const sc_uint<4> op = opcode.read();
 
-    logger()->trace("[->] A={}; arg={}; opcode={}", a.to_int(), b.to_int(), opcode.to_int());
+    logger()->trace("[->] A={}; arg={}; opcode={}", a.to_int(), b.to_int(), op.to_int());
 
     // 8-bit accumulator
     sc_dt::sc_uint<8> regACC = 0;
     // 5-bit flag register (Z, C, S, P, AC)
-    sc_dt::sc_uint<5> regFR = outFlags.read();
+    sc_dt::sc_uint<5> regFR = flags.read();
 
-    switch (opcode) {
+    switch (op) {
         case ALU::OP_ADD:
             regACC = a + b; 
             regFR[FLAG_IDX_CARRY] = a + b > 255;
@@ -119,8 +119,8 @@ void ALU::execute() {
 
     logger()->trace("[<-] result={}; flags={}", regACC.to_int(), regFR.to_int());
 
-    outResult.write(regACC);
-    outFlags.write(regFR);
+    result.write(regACC);
+    flags.write(regFR);
 }
 
 } // namespace sim

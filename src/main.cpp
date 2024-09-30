@@ -38,17 +38,19 @@ int sc_main(__unused int argc, __unused char* argv[])
 
     // ALU signal connections
 
-    alu.inA(aluA);
-    alu.inArg(aluArg);
-    alu.inOpCode(aluOpCode);
-    alu.outResult(aluResult);
-    alu.outFlags(aluFlags);
+    alu.accumulator(aluA);
+    alu.operand(aluArg);
+    alu.opcode(aluOpCode);
+    alu.result(aluResult);
+    alu.flags(aluFlags);
 
-    cu.aluOutA(aluA);               // Control Unit output to ALU input A
-    cu.aluOutArg(aluArg);           // Control Unit output to ALU input Arg
-    cu.aluOutOpCode(aluOpCode);     // Control Unit output to ALU opcode
-    cu.aluInResult(aluResult);      // ALU result to Control Unit input
-    cu.aluInFlags(aluFlags);        // ALU flags to Control Unit input
+    cu.aluAccumulator(aluA);               // Control Unit output to ALU input A
+    cu.aluOperand(aluArg);                 // Control Unit output to ALU input Arg
+    cu.aluOpcode(aluOpCode);               // Control Unit output to ALU opcode
+    cu.aluResult(aluResult);               // ALU result to Control Unit input
+    cu.aluFlags(aluFlags);                 // ALU flags to Control Unit input
+
+    // Memory signal connections
 
     memory.address(memAddress);
     memory.dataIn(memDataIn);
@@ -57,11 +59,11 @@ int sc_main(__unused int argc, __unused char* argv[])
     memory.write(memWrite);
 
     cu.clock(clock);
-    cu.memOutAddress(memAddress);   // Control Unit to Memory address
-    cu.memOutDataIn(memDataIn);     // Control Unit to Memory data in
-    cu.memOutRead(memRead);         // Control Unit read signal to Memory
-    cu.memOutWrite(memWrite);       // Control Unit write signal to Memory
-    cu.memInDataOut(memDataOut);    // Memory data output to Control Unit
+    cu.memAddress(memAddress);              // Control Unit to Memory address
+    cu.memDataIn(memDataIn);                // Control Unit to Memory data in
+    cu.memRead(memRead);                    // Control Unit read signal to Memory
+    cu.memWrite(memWrite);                  // Control Unit write signal to Memory
+    cu.memDataOut(memDataOut);              // Memory data output to Control Unit
 
     sc_start();
 

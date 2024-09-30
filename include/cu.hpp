@@ -16,18 +16,18 @@ public:
     sc_core::sc_in<bool> clock;                         // Clock signal
 
     // Ports
-    sc_core::sc_out<sc_dt::sc_uint<8>> aluOutA;         // ALU argument 1 (A register)
-    sc_core::sc_out<sc_dt::sc_uint<8>> aluOutArg;       // ALU argument 2 (argument)
-    sc_core::sc_out<sc_dt::sc_uint<4>> aluOutOpCode;    // Operation code to ALU
-    sc_core::sc_in<sc_dt::sc_uint<8>>  aluInResult;     // Result from ALU
-    sc_core::sc_in<sc_dt::sc_uint<5>>  aluInFlags;      // Input flags from ALU
+    sc_core::sc_out<sc_dt::sc_uint<8>> aluAccumulator;  // ALU argument 1 (A register)
+    sc_core::sc_out<sc_dt::sc_uint<8>> aluOperand;      // ALU argument 2 (argument)
+    sc_core::sc_out<sc_dt::sc_uint<4>> aluOpcode;       // Operation code to ALU
+    sc_core::sc_in<sc_dt::sc_uint<8>>  aluResult;       // Result from ALU
+    sc_core::sc_in<sc_dt::sc_uint<5>>  aluFlags;        // Input flags from ALU
 
     // Memory ports
-    sc_core::sc_out<sc_dt::sc_uint<16>> memOutAddress;  // Address for memory
-    sc_core::sc_out<sc_dt::sc_uint<8>> memOutDataIn;    // Data to write to memory
-    sc_core::sc_in<sc_dt::sc_uint<8>> memInDataOut;     // Data read from memory
-    sc_core::sc_out<bool> memOutRead;                   // Read signal
-    sc_core::sc_out<bool> memOutWrite;                  // Write signal
+    sc_core::sc_out<sc_dt::sc_uint<16>> memAddress;     // Address for memory
+    sc_core::sc_out<sc_dt::sc_uint<8>> memDataIn;       // Data to write to memory
+    sc_core::sc_in<sc_dt::sc_uint<8>> memDataOut;       // Data read from memory
+    sc_core::sc_out<bool> memRead;                      // Read signal
+    sc_core::sc_out<bool> memWrite;                     // Write signal
 
     void execute(); // Function to manage the control logic
 

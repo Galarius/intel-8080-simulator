@@ -35,13 +35,13 @@ void ControlUnit::execute() {
 }
 
 void ControlUnit::fetchInstruction() {
-    memOutAddress.write(pc);    // Set memory address to fetch instruction
-    memOutRead.write(true);     // Set read signal high
+    memAddress.write(pc);    // Set memory address to fetch instruction
+    memRead.write(true);     // Set read signal high
     
     wait();                     // Wait for one cycle
-    memOutRead.write(false);    // Clear read signal
+    memRead.write(false);    // Clear read signal
     // Read instruction from memory
-    sc_dt::sc_uint<8> instruction = memInDataOut.read();
+    sc_dt::sc_uint<8> instruction = memDataOut.read();
     // logger()->trace("Fetched instruction {}", instruction.to_uint());
     ++pc;
 }

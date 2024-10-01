@@ -12,4 +12,7 @@ namespace sim::utils {
 
 std::string GetCurrentDateTime();
 
+std::string to_binary(uint8_t value);
+
+
 } // namespace sim::utils

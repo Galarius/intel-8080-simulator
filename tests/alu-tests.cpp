@@ -44,7 +44,7 @@ TEST(ALUConsumers, AddTest) {
     alu->operand.write(15);
     alu->opcode.write(ALU::OP_ADD);
     
-    sc_start(1, SC_NS); // Wait for one time unit
+    sc_start(1, SC_NS);
 
     EXPECT_EQ(alu->result.read(), 25);
     EXPECT_EQ(alu->flags.read()[0], 0);

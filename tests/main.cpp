@@ -12,10 +12,17 @@
 int main(int argc, char** argv)
 {
     sim::ConfigureFileLogging("simulator-tests.log", spdlog::level::trace);
+
     ::testing::InitGoogleTest(&argc, argv);
     const int result = RUN_ALL_TESTS();
-    sc_core::sc_stop();
+
+    if(sc_core::sc_is_running()) {
+        sc_core::sc_stop();
+    }
     modules::shutdown();
+    
+    spdlog::get(sim::LogName::main)->info("Shutting down...\n\n");
     spdlog::shutdown();
+
     return result;
 }

@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <bitset>
 
 namespace sim::utils {
 
@@ -27,6 +28,10 @@ std::string GetCurrentDateTime()
     std::stringstream ss;
     ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
     return ss.str();
+}
+
+std::string to_binary(uint8_t value) {
+    return "0b" + std::bitset<8>(value).to_string().substr(8 - std::numeric_limits<uint8_t>::digits);
 }
 
 } // namespace sim::utils

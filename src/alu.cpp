@@ -16,14 +16,14 @@ namespace {
 
 namespace sim {
 
-const uint8_t ALU::OP_ADD = 0b0000;
-const uint8_t ALU::OP_ADC = 0b0001;
-const uint8_t ALU::OP_SUB = 0b0010;
-const uint8_t ALU::OP_SBB = 0b0011;
-const uint8_t ALU::OP_ANA = 0b0100;
-const uint8_t ALU::OP_XRA = 0b0101;
-const uint8_t ALU::OP_ORA = 0b0110;
-const uint8_t ALU::OP_CMP = 0b0111;
+const uint8_t ALU::OP_ADD = 0b00000000;
+const uint8_t ALU::OP_ADC = 0b00000001;
+const uint8_t ALU::OP_SUB = 0b00000010;
+const uint8_t ALU::OP_SBB = 0b00000011;
+const uint8_t ALU::OP_ANA = 0b00000100;
+const uint8_t ALU::OP_XRA = 0b00000101;
+const uint8_t ALU::OP_ORA = 0b00000110;
+const uint8_t ALU::OP_CMP = 0b00000111;
 
 const uint8_t ALU::FLAG_IDX_ZERO = 0;
 const uint8_t ALU::FLAG_IDX_CARRY = 1;

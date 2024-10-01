@@ -13,17 +13,17 @@ namespace sim {
 /*
  * Arithmetic and Logic Unit (ALU)
  *
- * SSS DDD	2	1	0	CC	ALU	                        RP
- *    B	    0	0	0	NZ	ADD ADI (A ← A + B)         BC
- *    C	    0	0	1	Z	ADC ACI (A ← A + B + Cy)    DE
- *    D	    0	1	0	NC	SUB SUI (A ← A - B)         HL
- *    E	    0	1	1	C	SBB SBI (A ← A - B - Cy)    SP or PSW
- *    H	    1	0	0	PO	ANA ANI (A ← A ∧ B)
- *    L	    1	0	1	PE	XRA XRI (A ← A ⊻ B)
- *    M	    1	1	0	P	ORA ORI (A ← A ∨ B)
- *    A	    1	1	1	N	CMP CPI (A - B)
- * 
- * TODO: add support for operations (ADI, ACI, SUI, SBI, ANI, XRI, ORI, CPI) that use immediate value
+ * SSS DDD	2	1	0	CC	ALU                           RP
+ *    B	    0	0	0	NZ	ADD ADI (A ← A + arg)         BC
+ *    C	    0	0	1	Z	ADC ACI (A ← A + arg + Cy)    DE
+ *    D	    0	1	0	NC	SUB SUI (A ← A - arg)         HL
+ *    E	    0	1	1	C	SBB SBI (A ← A - arg - Cy)    SP or PSW
+ *    H	    1	0	0	PO	ANA ANI (A ← A ∧ arg)
+ *    L	    1	0	1	PE	XRA XRI (A ← A ⊻ arg)
+ *    M	    1	1	0	P	ORA ORI (A ← A ∨ arg)
+ *    A	    1	1	1	N	CMP CPI (A - arg)
+ *
+ * (arg is a value from a register or memory or and immediate value)
  */
 class ALU final : sc_core::sc_module {
 

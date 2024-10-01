@@ -23,8 +23,8 @@ int sc_main(__unused int argc, __unused char* argv[])
 
     // Signals
 
-    sc_signal<sc_dt::sc_uint<8>> aluA;          // ALU input A signal
-    sc_signal<sc_dt::sc_uint<8>> aluArg;        // ALU input Arg signal
+    sc_signal<sc_dt::sc_uint<8>> aluAccumulator;// ALU input A signal
+    sc_signal<sc_dt::sc_uint<8>> aluOperand;    // ALU input Arg signal
     sc_signal<sc_dt::sc_uint<4>> aluOpCode;     // ALU OpCode signal
     sc_signal<sc_dt::sc_uint<8>> aluResult;     // ALU result signal
     sc_signal<sc_dt::sc_uint<5>> aluFlags;      // ALU flags signal
@@ -35,17 +35,16 @@ int sc_main(__unused int argc, __unused char* argv[])
     sc_signal<bool> memRead;                    // Memory read signal
     sc_signal<bool> memWrite;                   // Memory write signal
 
-
     // ALU signal connections
 
-    alu.accumulator(aluA);
-    alu.operand(aluArg);
+    alu.accumulator(aluAccumulator);
+    alu.operand(aluOperand);
     alu.opcode(aluOpCode);
     alu.result(aluResult);
     alu.flags(aluFlags);
 
-    cu.aluAccumulator(aluA);               // Control Unit output to ALU input A
-    cu.aluOperand(aluArg);                 // Control Unit output to ALU input Arg
+    cu.aluAccumulator(aluAccumulator);     // Control Unit output to ALU input A
+    cu.aluOperand(aluOperand);             // Control Unit output to ALU input Arg
     cu.aluOpcode(aluOpCode);               // Control Unit output to ALU opcode
     cu.aluResult(aluResult);               // ALU result to Control Unit input
     cu.aluFlags(aluFlags);                 // ALU flags to Control Unit input

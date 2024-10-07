@@ -53,7 +53,9 @@ set(headers
     alu.hpp
     memory.hpp
     memory.tpp
+    mut.hpp
     cu.hpp
+    reg.hpp
     log.hpp
     utils.hpp
 )
@@ -62,6 +64,7 @@ set(sources
     alu.cpp
     memory.cpp
     cu.cpp
+    reg.cpp
     main.cpp
     log.cpp
     utils.cpp

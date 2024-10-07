@@ -27,11 +27,11 @@ public:
 
     MemoryConsumer() {
         // Bind signals to Memory ports
-        memory.address(address);
-        memory.dataIn(dataIn);
-        memory.dataOut(dataOut);
-        memory.read(read);
-        memory.write(write);
+        memory.addressBus(address);
+        memory.dataBusIn(dataIn);
+        memory.dataBusOut(dataOut);
+        memory.readEnable(read);
+        memory.writeEnable(write);
     }
 
     void load(const std::array<uint8_t, MemorySize>& data) {

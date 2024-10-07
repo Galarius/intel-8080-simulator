@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "reg.hpp"
+
 #include <systemc>
 
 namespace sim {
@@ -20,6 +22,7 @@ public:
     static const uint8_t OP_REG_H;
     static const uint8_t OP_REG_L;
     static const uint8_t OP_REG_M;
+    static const uint8_t OP_MEM;
     static const uint8_t OP_REG_A;
 
     static const uint8_t OP_GROUP_DATA_TRANSFER;
@@ -39,17 +42,30 @@ public:
     sc_core::sc_in<sc_dt::sc_uint<8>>  aluResult;       // Result from ALU
     sc_core::sc_in<sc_dt::sc_uint<5>>  aluFlags;        // Input flags from ALU
 
-    // Memory ports
-    sc_core::sc_out<sc_dt::sc_uint<16>> memAddress;     // Address for memory
-    sc_core::sc_out<sc_dt::sc_uint<8>> memDataIn;       // Data to write to memory
-    sc_core::sc_in<sc_dt::sc_uint<8>> memDataOut;       // Data read from memory
-    sc_core::sc_out<bool> memRead;                      // Read signal
-    sc_core::sc_out<bool> memWrite;                     // Write signal
+    // Bus ports
+    sc_core::sc_out<sc_dt::sc_uint<16>> addressBus;
+    sc_core::sc_out<sc_dt::sc_uint<8>>  dataBusOut;
+    sc_core::sc_in<sc_dt::sc_uint<8>>   dataBusIn;
 
-    void signalToReadAt(sc_dt::sc_uint<16> address);
+    // MUX ports
+    sc_core::sc_in<sc_dt::sc_uint<8>>  inputMux;       // Input signal from mux
+    sc_core::sc_out<sc_dt::sc_uint<8>> outputMux;      // Output signal
+    
+    // Control Lines
+    sc_core::sc_out<bool> memoryWriteEnable;
+    sc_core::sc_out<bool> muxWriteEnable;
+    sc_core::sc_out<bool> memoryReadEnable;
+    sc_core::sc_out<bool> muxReadEnable;
+
+    // MUX ports
+    sc_core::sc_out<sc_dt::sc_uint<8>> muxSelect;                 // Select signal for multiplexer
+
+    sc_dt::sc_uint<8> readReg(sc_dt::sc_uint<8> source);
+    sc_dt::sc_uint<8> readMemAt(sc_dt::sc_uint<16> address);
+    void writeReg(sc_dt::sc_uint<8> source, sc_dt::sc_uint<8> value);
+    void writeMemAt(sc_dt::sc_uint<16> address, sc_dt::sc_uint<8> value);
     void waitFor(int);
     void execute(); // Method to manage the control logic
-    void inspect();
 
     ControlUnit(sc_core::sc_module_name name);
 
@@ -59,14 +75,6 @@ private:
     sc_dt::sc_uint<16> pc; // Program counter
     sc_dt::sc_uint<16> sp; // Stack pointer
     sc_dt::sc_uint<5> flags;
-    // Registers
-    sc_dt::sc_uint<8> accumulator;
-    sc_dt::sc_uint<8> registerB;
-    sc_dt::sc_uint<8> registerC;
-    sc_dt::sc_uint<8> registerD;
-    sc_dt::sc_uint<8> registerE;
-    sc_dt::sc_uint<8> registerH;
-    sc_dt::sc_uint<8> registerL;
 };
 
 } // namespace sim

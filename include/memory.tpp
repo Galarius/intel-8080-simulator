@@ -17,21 +17,21 @@ Memory<MemorySize>::Memory(sc_core::sc_module_name name)
     : sc_module(std::move(name)), buffer {} {
     SC_METHOD(execute);
     // Process on read/write signals and address change
-    sensitive << read << write << address << dataIn;
+    sensitive << readEnable << writeEnable << addressBus << dataBusIn;
 }
 
 template<size_t MemorySize>
 void Memory<MemorySize>::execute() {
-    if (write.read()) {
+    if (writeEnable.read()) {
         // Write data to memory
-        buffer[address.read().to_uint() % MemorySize] = dataIn.read();
-        spdlog::get(sim::LogName::memory)->info("Written to memory: Address={}, Data={}", address.read().to_int(), dataIn.read().to_uint());
+        buffer[addressBus.read().to_uint() % MemorySize] = dataBusIn.read();
+        spdlog::get(sim::LogName::memory)->info("Written to memory: Address={}, Data={}", addressBus.read().to_int(), dataBusIn.read().to_uint());
     }
 
-    if (read.read()) {
+    if (readEnable.read()) {
         // Read data from memory
-        dataOut.write(buffer[address.read().to_uint() % MemorySize]);
-        spdlog::get(sim::LogName::memory)->info("Read from memory: Address={}, Data={}", address.read().to_int(), dataOut.read().to_uint());
+        dataBusOut.write(buffer[addressBus.read().to_uint() % MemorySize]);
+        spdlog::get(sim::LogName::memory)->info("Read from memory: Address={}, Data={}", addressBus.read().to_int(), dataBusOut.read().to_uint());
     }
 }
 

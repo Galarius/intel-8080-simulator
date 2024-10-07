@@ -29,10 +29,10 @@ class ALU final : sc_core::sc_module {
 
 public:
     static const uint8_t OP_ADD; // ADD ; A ← A + B
-    static const uint8_t OP_ADC; // ADD ; A ← A + B + Cy
+    static const uint8_t OP_ADC; // ADC ; A ← A + B + Cy
     static const uint8_t OP_SUB; // SUB ; A ← A - B
     static const uint8_t OP_SBB; // SBB ; A ← A - B - Cy
-    static const uint8_t OP_ANA; // SBB ; A ← A ∧ B
+    static const uint8_t OP_ANA; // ANA ; A ← A ∧ B
     static const uint8_t OP_XRA; // XRA ; A ← A ⊻ B
     static const uint8_t OP_ORA; // ORA ; A ← A ∨ B
     static const uint8_t OP_CMP; // CMP ; A - B

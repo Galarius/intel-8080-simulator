@@ -8,6 +8,16 @@
 
 * Arithmetic and Logic Unit (ALU)
 * 64 kB memory
+* Control Unit (partially)
+* Multiplexer
+* Register
+
+## Implemented instruction set
+
+* NOP
+* HLT
+* ALU (ADD, ADC, SUB, SBB, ANA, XRA, ORA, CMP)
+* ALU Immediate (ADI, ADI, SUI, SBI, ANI, XRI, ORI, CMI)
 
 ## Disclaimer
 

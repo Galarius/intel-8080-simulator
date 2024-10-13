@@ -36,6 +36,7 @@ ALU::ALU(sc_module_name name)
     SC_METHOD(execute);
     // Ensure the ALU recalculates when any of these change
     sensitive << accumulator << operand << opcode;
+    dont_initialize();
 }
 
 void ALU::execute() {
@@ -57,14 +58,14 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = ((a & 0x0F) + (b & 0x0F)) > 0x0F;
             regFR[FLAG_IDX_ZERO] = regACC == 0; // Zero flag
             regFR[FLAG_IDX_SIGN] = regACC[7]; // Sign flag (MSB of result)
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC); // Calculate parity (even parity)
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC)); // Calculate parity (even parity)
             break;
         case ALU::OP_ADC:
             regACC = a + b + regFR[FLAG_IDX_CARRY];
             regFR[FLAG_IDX_CARRY] = (a + b + regFR[FLAG_IDX_CARRY]) > 255;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
         case ALU::OP_SUB:
             regACC = a - b;
@@ -72,7 +73,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = 0;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
         case ALU::OP_SBB:
             regACC = a - b - regFR[FLAG_IDX_CARRY]; // Subtract arg and Carry
@@ -80,7 +81,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = 0;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
         case ALU::OP_ANA:
             regACC = a & b;
@@ -88,7 +89,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = ((a & 0x0F) & (b & 0x0F)) > 0x0F;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
         case ALU::OP_XRA:
             regACC = a ^ b;
@@ -96,7 +97,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = 0;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
          case ALU::OP_ORA:
             regACC = a | b;
@@ -104,7 +105,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = 0;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             break;
         case ALU::OP_CMP:
             regACC = a - b; // Internal only
@@ -112,7 +113,7 @@ void ALU::execute() {
             regFR[FLAG_IDX_AUX_CARRY] = 0;
             regFR[FLAG_IDX_ZERO] = regACC == 0;
             regFR[FLAG_IDX_SIGN] = regACC[7];
-            regFR[FLAG_IDX_PARITY] = __builtin_parity(regACC);
+            regFR[FLAG_IDX_PARITY] = __builtin_parity(static_cast<unsigned int>(regACC));
             regACC = 0;
             break;
     }

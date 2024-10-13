@@ -10,6 +10,10 @@
 
 #include <systemc>
 
+#ifdef ENABLE_TESTING
+#include <mutex>
+#endif
+
 namespace sim {
 
 class ControlUnit final : sc_core::sc_module {
@@ -69,12 +73,42 @@ public:
 
     ControlUnit(sc_core::sc_module_name name);
 
+    void reset();
 private:
     sc_dt::sc_uint<8> getRegisterValue(uint8_t regCode);
+    void setRegisterValue(uint8_t regCode, sc_dt::sc_uint<8> value);
 
     sc_dt::sc_uint<16> pc; // Program counter
     sc_dt::sc_uint<16> sp; // Stack pointer
     sc_dt::sc_uint<5> flags;
+
+#ifdef ENABLE_TESTING
+public:
+    bool isHalted() {
+        std::lock_guard guard(mutex);
+        return halted;
+    }
+
+    void resetHalted() {
+        std::lock_guard guard(mutex);
+        halted = false;
+    }
+
+    bool isResetted() {
+        std::lock_guard guard(mutex);
+        return resetted;
+    }
+
+    void doneResetting() {
+        std::lock_guard guard(mutex);
+        resetted = false;
+    }
+
+private:
+    bool halted { false };
+    bool resetted { false };
+    std::mutex mutex;    
+#endif
 };
 
 } // namespace sim

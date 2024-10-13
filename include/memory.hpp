@@ -25,12 +25,21 @@ public:
 
     Memory(sc_core::sc_module_name name);
 
+    void reset();
+
     void load(const std::array<uint8_t, MemorySize>& data);
 
 private:
     void execute();
 
     std::array<sc_dt::sc_uint<8>, MemorySize> buffer;   // Internal memory storage
+
+#ifdef ENABLE_TESTING
+public:
+    sc_dt::sc_uint<8> getValueAt(sc_dt::sc_uint<16> address) const {
+        return buffer[address];
+    }
+#endif
 };
 
 } // namespace sim

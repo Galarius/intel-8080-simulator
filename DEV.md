@@ -36,7 +36,7 @@ set CONAN_HOME=$(pwd)/.conan-home
 conan.exe profile detect
 ```
 
-## Building the project
+## Building the project (Release)
 
 | | |
 |---|---|
@@ -47,4 +47,14 @@ conan.exe profile detect
 | `./build.py all` | Perform all of the above commands |
 
 *Run `./build.py [cmd] --help` to learn more about configurable arguments.*
+
+### Building the project (Debug, macOS example with Xcode)
+
+| | |
+|---|---|
+| `./build.py conan-install -c -w -pr:h conan/profiles/darwin.debug.x86_64` | |
+| ` mkdir .build-xcode && cd .build-xcode` | |
+| `cmake -G Xcode -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=.conan-install/build/Debug/generators/conan_toolchain.cmake -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug ..` | |
+| `cd ..` | |
+| `open .build-xcode/simulator-intel-8080.xcodeproj` | |
 

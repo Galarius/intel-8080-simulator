@@ -18,9 +18,11 @@
 * HLT
 * ALU (ADD, ADC, SUB, SBB, ANA, XRA, ORA, CMP)
 * ALU Immediate (ADI, ADI, SUI, SBI, ANI, XRI, ORI, CMI)
+* MVI
+* ...
 
 ## Disclaimer
 
 This is not intended to be a fully accurate or complete simulator of the Intel 8080.
 It’s a personal hobby project, currently in the early stages of development.
-The primary goal of this project is to honor the technology and gain a deeper understanding of microprocessor internals, as well as the SystemC and TLM-2.0.
+The primary goal of this project is to honor the technology and gain a deeper understanding of microprocessor internals, as well as the SystemC.

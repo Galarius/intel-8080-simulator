@@ -5,6 +5,7 @@
 //
 
 #include "reg.hpp"
+#include "log.hpp"
 
 #include <systemc>
 
@@ -14,16 +15,20 @@ namespace sim {
 
 Register::Register(sc_module_name name) : sc_module(name) {
     SC_METHOD(update);
-    sensitive << clock.pos();
+    sensitive << writeEnable << dataIn;
+    dont_initialize();
+}
+
+void Register::reset() {
+    value = 0;
 }
 
 void Register::update() {
     if (writeEnable.read()) {
         value = dataIn.read();
+        spdlog::get(sim::LogName::reg)->trace("The value {} has been set", value.to_uint());
     }
-    if(readEnable.read()) {
-        dataOut.write(value);
-    }
+    dataOut.write(value);
 }
 
 } // namespace sim

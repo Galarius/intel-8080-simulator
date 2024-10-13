@@ -37,47 +37,33 @@ public:
     Intel8080(sc_core::sc_module_name name) 
         : sc_core::sc_module(std::move(name)) {
          // Registers signal connections
-        registerA.clock(clock);
         registerA.writeEnable(aWriteEnable);
-        registerA.readEnable(aReadEnable);
-        registerA.dataIn(inputA);
-        registerA.dataOut(outputA);
+        registerA.dataIn(dataMuxToRegA);
+        registerA.dataOut(dataRegAToMux);
 
-        registerB.clock(clock);
         registerB.writeEnable(bWriteEnable);
-        registerB.readEnable(bReadEnable);
-        registerB.dataIn(inputB);
-        registerB.dataOut(outputB);
+        registerB.dataIn(dataMuxToRegB);
+        registerB.dataOut(dataRegBToMux);
 
-        registerC.clock(clock);
         registerC.writeEnable(cWriteEnable);
-        registerC.readEnable(cReadEnable);
-        registerC.dataIn(inputC);
-        registerC.dataOut(outputC);
+        registerC.dataIn(dataMuxToRegC);
+        registerC.dataOut(dataRegCToMux);
 
-        registerD.clock(clock);
         registerD.writeEnable(dWriteEnable);
-        registerD.readEnable(dReadEnable);
-        registerD.dataIn(inputD);
-        registerD.dataOut(outputD);
+        registerD.dataIn(dataMuxToRegD);
+        registerD.dataOut(dataRegDToMux);
 
-        registerE.clock(clock);
         registerE.writeEnable(eWriteEnable);
-        registerE.readEnable(eReadEnable);
-        registerE.dataIn(inputE);
-        registerE.dataOut(outputE);
+        registerE.dataIn(dataMuxToRegE);
+        registerE.dataOut(dataRegEToMux);
 
-        registerH.clock(clock);
         registerH.writeEnable(hWriteEnable);
-        registerH.readEnable(hReadEnable);
-        registerH.dataIn(inputH);
-        registerH.dataOut(outputH);
+        registerH.dataIn(dataMuxToRegH);
+        registerH.dataOut(dataRegHToMux);
 
-        registerL.clock(clock);
         registerL.writeEnable(lWriteEnable);
-        registerL.readEnable(lReadEnable);
-        registerL.dataIn(inputL);
-        registerL.dataOut(outputL);
+        registerL.dataIn(dataMuxToRegL);
+        registerL.dataOut(dataRegLToMux);
 
         // Memory signal connections
         memory.addressBus(addressBus);
@@ -87,20 +73,20 @@ public:
         memory.dataBusOut(dataBusMemoryControlUnit);
 
         // Connect MUX signals
-        mux.inputB(outputB);
-        mux.inputC(outputC);
-        mux.inputD(outputD);
-        mux.inputE(outputE);
-        mux.inputH(outputH);
-        mux.inputL(outputL);
-        mux.inputA(outputA);
-        mux.outputB(inputB);
-        mux.outputC(inputC);
-        mux.outputD(inputD);
-        mux.outputE(inputE);
-        mux.outputH(inputH);
-        mux.outputL(inputL);
-        mux.outputA(inputA);
+        mux.inputA(dataRegAToMux);
+        mux.inputB(dataRegBToMux);
+        mux.inputC(dataRegCToMux);
+        mux.inputD(dataRegDToMux);
+        mux.inputE(dataRegEToMux);
+        mux.inputH(dataRegHToMux);
+        mux.inputL(dataRegLToMux);
+        mux.outputA(dataMuxToRegA);
+        mux.outputB(dataMuxToRegB);
+        mux.outputC(dataMuxToRegC);
+        mux.outputD(dataMuxToRegD);
+        mux.outputE(dataMuxToRegE);
+        mux.outputH(dataMuxToRegH);
+        mux.outputL(dataMuxToRegL);
         
         mux.regWriteEnable[SELECT_REG_A](aWriteEnable);
         mux.regWriteEnable[SELECT_REG_B](bWriteEnable);
@@ -109,14 +95,6 @@ public:
         mux.regWriteEnable[SELECT_REG_E](eWriteEnable);
         mux.regWriteEnable[SELECT_REG_H](hWriteEnable);
         mux.regWriteEnable[SELECT_REG_L](lWriteEnable);
-
-        mux.regReadEnable[SELECT_REG_A](aReadEnable);
-        mux.regReadEnable[SELECT_REG_B](bReadEnable);
-        mux.regReadEnable[SELECT_REG_C](cReadEnable);
-        mux.regReadEnable[SELECT_REG_D](dReadEnable);
-        mux.regReadEnable[SELECT_REG_E](eReadEnable);
-        mux.regReadEnable[SELECT_REG_H](hReadEnable);
-        mux.regReadEnable[SELECT_REG_L](lReadEnable);
 
         mux.select(muxSelect);
         mux.input(dataControlUnitMux);
@@ -152,14 +130,32 @@ public:
         cu.aluFlags(aluFlags);                 // ALU flags to Control Unit input
     }
 
+    void reset() {
+        memory.reset();
+        registerA.reset();
+        registerB.reset();
+        registerC.reset();
+        registerD.reset();
+        registerE.reset();
+        registerH.reset();
+        registerL.reset();
+        cu.reset();
+    }
+
     void loadMemory(const std::array<uint8_t, DEFAULT_MEMORY_SIZE>& data) {
+#ifdef ENABLE_TESTING
+        reset();
         memory.load(data);
+        cu.resetHalted();
+#else
+        memory.load(data);
+#endif
     }
 
 private:
     // Data Lines
-    sc_core::sc_signal<sc_dt::sc_uint<8>> inputA, inputB, inputC, inputD, inputE, inputH, inputL;
-    sc_core::sc_signal<sc_dt::sc_uint<8>> outputA, outputB, outputC, outputD, outputE, outputH, outputL;
+    sc_core::sc_signal<sc_dt::sc_uint<8>> dataMuxToRegA, dataMuxToRegB, dataMuxToRegC, dataMuxToRegD, dataMuxToRegE, dataMuxToRegH, dataMuxToRegL;
+    sc_core::sc_signal<sc_dt::sc_uint<8>> dataRegAToMux, dataRegBToMux, dataRegCToMux, dataRegDToMux, dataRegEToMux, dataRegHToMux, dataRegLToMux;
     sc_core::sc_signal<sc_dt::sc_uint<8>> dataControlUnitMux;
     sc_core::sc_signal<sc_dt::sc_uint<8>> dataMuxControlUnit;
     sc_core::sc_signal<sc_dt::sc_uint<8>> dataBusControlUnitMemory;
@@ -180,13 +176,6 @@ private:
     sc_core::sc_signal<bool> muxWriteEnable;
 
     sc_core::sc_signal<bool> memoryReadEnable;
-    sc_core::sc_signal<bool> aReadEnable;
-    sc_core::sc_signal<bool> bReadEnable;
-    sc_core::sc_signal<bool> cReadEnable;
-    sc_core::sc_signal<bool> dReadEnable;
-    sc_core::sc_signal<bool> eReadEnable;
-    sc_core::sc_signal<bool> hReadEnable;
-    sc_core::sc_signal<bool> lReadEnable;
     sc_core::sc_signal<bool> muxReadEnable;
 
     // ALU Lines

@@ -7,6 +7,8 @@
 #pragma once
 
 #include "common.hpp"
+#include "log.hpp"
+#include "utils.hpp"
 
 #include <systemc>
 
@@ -41,45 +43,51 @@ public:
     sc_core::sc_out<sc_dt::sc_uint<8>> outputL;
 
     sc_core::sc_out<bool> regWriteEnable[7];
-    sc_core::sc_out<bool> regReadEnable[7];
 
     Multiplexer(sc_core::sc_module_name name) : sc_core::sc_module(name) {
         SC_METHOD(selector);
-        sensitive << select << input << writeEnable << readEnable;
+        sensitive << select << writeEnable << readEnable << input << inputA << inputB << inputC << inputD << inputE << inputH << inputL;
+        dont_initialize();
     }
 
 private:
     void selector() {
+        const uint regID = select.read().to_uint();
+        spdlog::get(sim::LogName::mut)->trace("Selector -> {} ", utils::to_binary(regID));
         if (writeEnable.read()) {
+            spdlog::get(sim::LogName::mut)->trace("Writing register {} ", utils::to_binary(regID));
             // Write to the selected source
-            const uint regID = select.read().to_uint();
             regWriteEnable[regID].write(true);
+            const sc_dt::sc_uint<8> data = input.read();
             switch (regID) {
-                case SELECT_REG_A: outputA.write(input.read()); break;
-                case SELECT_REG_B: outputB.write(input.read()); break;
-                case SELECT_REG_C: outputC.write(input.read()); break;
-                case SELECT_REG_D: outputD.write(input.read()); break;
-                case SELECT_REG_E: outputE.write(input.read()); break;
-                case SELECT_REG_H: outputH.write(input.read()); break;
-                case SELECT_REG_L: outputL.write(input.read()); break;
+                case SELECT_REG_A: outputA.write(data); break;
+                case SELECT_REG_B: outputB.write(data); break;
+                case SELECT_REG_C: outputC.write(data); break;
+                case SELECT_REG_D: outputD.write(data); break;
+                case SELECT_REG_E: outputE.write(data); break;
+                case SELECT_REG_H: outputH.write(data); break;
+                case SELECT_REG_L: outputL.write(data); break;
                 default: break;
             }
+        } else {
+            regWriteEnable[regID].write(false);
         }
 
         if (readEnable.read()) {
+            spdlog::get(sim::LogName::mut)->trace("Reading register {} ", utils::to_binary(regID));
             // Read from the selected source
-            const uint regID = select.read().to_uint();
-            regReadEnable[regID].write(true);
+            sc_dt::sc_uint<8> data;
             switch (regID) {
-                case SELECT_REG_A: output.write(inputA.read()); break;
-                case SELECT_REG_B: output.write(inputB.read()); break;
-                case SELECT_REG_C: output.write(inputC.read()); break;
-                case SELECT_REG_D: output.write(inputD.read()); break;
-                case SELECT_REG_E: output.write(inputE.read()); break;
-                case SELECT_REG_H: output.write(inputH.read()); break;
-                case SELECT_REG_L: output.write(inputL.read()); break;
+                case SELECT_REG_A: data = inputA.read(); break;
+                case SELECT_REG_B: data = inputB.read(); break;
+                case SELECT_REG_C: data = inputC.read(); break;
+                case SELECT_REG_D: data = inputD.read(); break;
+                case SELECT_REG_E: data = inputE.read(); break;
+                case SELECT_REG_H: data = inputH.read(); break;
+                case SELECT_REG_L: data = inputL.read(); break;
                 default: break;
             }
+            output.write(data);
         }
     }
 };

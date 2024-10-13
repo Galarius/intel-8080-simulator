@@ -23,6 +23,8 @@ std::string LogName::main = "sim";
 std::string LogName::alu = "alu";
 std::string LogName::memory = "memory";
 std::string LogName::cu = "cu";
+std::string LogName::mut = "mut";
+std::string LogName::reg = "reg";
 
 const int flushIntervalSec = 5;
 
@@ -49,6 +51,8 @@ void ConfigureLogging(bool fileLogging, const std::string& filename, spdlog::lev
             std::make_shared<spdlog::logger>(LogName::alu, sinks.begin(), sinks.end()),
             std::make_shared<spdlog::logger>(LogName::memory, sinks.begin(), sinks.end()),
             std::make_shared<spdlog::logger>(LogName::cu, sinks.begin(), sinks.end()),
+            std::make_shared<spdlog::logger>(LogName::mut, sinks.begin(), sinks.end()),
+            std::make_shared<spdlog::logger>(LogName::reg, sinks.begin(), sinks.end()),
         };
 
         for (const auto& logger : subLoggers)

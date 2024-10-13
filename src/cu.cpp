@@ -41,27 +41,44 @@ const uint8_t ControlUnit::OP_INST_HLT = 0b01110110;
 ControlUnit::ControlUnit(sc_core::sc_module_name name)
     : sc_core::sc_module(name), pc(0) {
     SC_THREAD(execute);
-
     sensitive << clock.pos();  // Add clock sensitivity for positive edge
+    dont_initialize();
+}
+
+void ControlUnit::reset() {
+
+    logger()->trace("Resetting...");
+    pc = 0x0;
+    sp = 0x0;
+    flags = 0x0;
+    {
+        std::lock_guard guard(mutex);
+        resetted = true;
+    }
 }
 
 sc_dt::sc_uint<8> ControlUnit::readReg(sc_dt::sc_uint<8> source) {
-    muxSelect.write(source);        // Set active data source to drive the bus
+    logger()->trace("Reading register {}...", utils::to_binary(source.to_uint()));
+    muxSelect.write(source);        // Set active data source
     muxReadEnable.write(true);      // Set read signal high
     wait(SC_ZERO_TIME);             // Wait for one cycle
     muxReadEnable.write(false);     // Clear read signal
+    wait(SC_ZERO_TIME);             // Wait for one cycle
     return inputMux.read();
 }
 
 sc_dt::sc_uint<8> ControlUnit::readMemAt(sc_dt::sc_uint<16> address) {
+    logger()->trace("Reading memory at address {} ", address.to_uint());
     addressBus.write(address);      // Set memory address to fetch instruction/operand
     memoryReadEnable.write(true);   // Set read signal high
     wait(SC_ZERO_TIME);             // Wait for one cycle
     memoryReadEnable.write(false);  // Clear read signal
+    wait(SC_ZERO_TIME);             // Wait for one cycle
     return dataBusIn.read();
 }
 
 void ControlUnit::writeReg(sc_dt::sc_uint<8> source, sc_dt::sc_uint<8> value) {
+    logger()->trace("Writing value {} to register {} ", value.to_uint(), utils::to_binary(source.to_uint()));
     muxSelect.write(source);        // Set active data source to drive the bus
     outputMux.write(value);
     muxWriteEnable.write(true);     // Set write signal high
@@ -70,6 +87,7 @@ void ControlUnit::writeReg(sc_dt::sc_uint<8> source, sc_dt::sc_uint<8> value) {
 }
 
 void ControlUnit::writeMemAt(sc_dt::sc_uint<16> address, sc_dt::sc_uint<8> value) {
+    logger()->trace("Writing value {} to memory at address {} ", value.to_uint(), address.to_uint());
     addressBus.write(address);      // Set memory address to fetch instruction/operand
     dataBusOut.write(value);
     memoryWriteEnable.write(true);
@@ -85,8 +103,30 @@ void ControlUnit::waitFor(int clocks) {
 }
 
 void ControlUnit::execute() {
+    logger()->trace("execution started");
+
     while (true) {
-        logger()->trace("cthread triggered @ {}", sc_time_stamp().to_string());
+
+        if (isResetted()) {
+            writeReg(SELECT_REG_A, 0);
+            writeReg(SELECT_REG_B, 0);
+            writeReg(SELECT_REG_C, 0);
+            writeReg(SELECT_REG_D, 0);
+            writeReg(SELECT_REG_E, 0);
+            writeReg(SELECT_REG_H, 0);
+            writeReg(SELECT_REG_L, 0);
+            doneResetting();
+        }
+
+#ifdef ENABLE_TESTING
+        if (isHalted()) {
+            wait();
+            continue;
+        }
+#endif
+
+        logger()->trace("thread triggered @ {}", sc_time_stamp().to_string());
+
         // fetch & decode & execute
         const uint8_t instruction = readMemAt(pc).to_uint(); // 1 cycle
         const uint8_t opgroup = (instruction >> 6) & 0b00000011;
@@ -94,7 +134,8 @@ void ControlUnit::execute() {
         const uint8_t source = instruction & 0b00000111;
 
         if(instruction != OP_INST_NOP) {
-            logger()->trace("pc -> {} (group: {}, code: {}, source: {})", 
+            logger()->trace("pc [{}] -> {} (group: {}, code: {}, source: {})", 
+                pc.to_uint(),
                 utils::to_binary(instruction), 
                 utils::to_binary(opgroup), 
                 utils::to_binary(opcode), 
@@ -108,13 +149,35 @@ void ControlUnit::execute() {
                 waitFor(4);
                 ++pc;
             }
+
+            if(source == 0b00000110) {      // MVI ddd,data 
+                setRegisterValue(opcode, readMemAt(++pc)); // 1 cycle
+                if(source == OP_REG_M) {
+                    waitFor(9);
+                } else {
+                    waitFor(6);
+                }
+                ++pc;
+            }
         break;
     
         case OP_GROUP_MOV:
             if(instruction == OP_INST_HLT) { // HLT
                 waitFor(7);
+#ifdef ENABLE_TESTING
+                /*
+                    Once sc_stop() has been called,
+                    the simulation enters a "terminated" state, and sc_start() cannot be called
+                    again within the same execution context.
+                */
+                {
+                    std::lock_guard guard(mutex);
+                    halted = true;
+                }
+#else
                 logger()->info("HLT: Stopping execution...");
                 sc_stop();
+#endif
             }
         break;
 
@@ -148,14 +211,12 @@ void ControlUnit::execute() {
             std::cerr << "Unknown opcode: " << std::hex << (int)instruction << std::dec << std::endl;
             break;
         }
-                
+
         wait();
     }
 }
 
-// Decode function to get the source register
 sc_dt::sc_uint<8> ControlUnit::getRegisterValue(uint8_t regCode) {
-    muxSelect.write(regCode);  // Select the source in the multiplexer
     switch (regCode) {
         case OP_REG_A: return readReg(SELECT_REG_A); // 1 cycle
         case OP_REG_B: return readReg(SELECT_REG_B); // 1 cycle            
@@ -174,6 +235,29 @@ sc_dt::sc_uint<8> ControlUnit::getRegisterValue(uint8_t regCode) {
             return readMemAt(address); // 1 cycle
         }
         default: return 0; // Should not happen
+    }
+}
+
+void ControlUnit::setRegisterValue(uint8_t regCode, sc_dt::sc_uint<8> value) {
+    switch (regCode) {
+        case OP_REG_A: return writeReg(SELECT_REG_A, value); // 1 cycle
+        case OP_REG_B: return writeReg(SELECT_REG_B, value); // 1 cycle
+        case OP_REG_C: return writeReg(SELECT_REG_C, value); // 1 cycle
+        case OP_REG_D: return writeReg(SELECT_REG_D, value); // 1 cycle
+        case OP_REG_E: return writeReg(SELECT_REG_E, value); // 1 cycle
+        case OP_REG_H: return writeReg(SELECT_REG_H, value); // 1 cycle
+        case OP_REG_L: return writeReg(SELECT_REG_L, value); // 1 cycle
+        case OP_REG_M: 
+        {
+            const sc_dt::sc_uint<8> h = readReg(SELECT_REG_H); // 1 cycle
+            const sc_dt::sc_uint<8> l = readReg(SELECT_REG_L); // 1 cycle
+            // Get the memory value pointed to by HL
+            const sc_dt::sc_uint<16> address = (h << 8) | l;
+            // Memory at (HL), read from the bus
+            writeMemAt(address, value); // 1 cycle
+            break;
+        }
+        default: break; // Should not happen
     }
 }
 

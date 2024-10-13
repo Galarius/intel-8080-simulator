@@ -18,6 +18,12 @@ Memory<MemorySize>::Memory(sc_core::sc_module_name name)
     SC_METHOD(execute);
     // Process on read/write signals and address change
     sensitive << readEnable << writeEnable << addressBus << dataBusIn;
+    dont_initialize();
+}
+
+template<size_t MemorySize>
+void Memory<MemorySize>::reset() {
+    buffer.fill(0);
 }
 
 template<size_t MemorySize>
@@ -37,6 +43,7 @@ void Memory<MemorySize>::execute() {
 
 template<size_t MemorySize>
 void Memory<MemorySize>::load(const std::array<uint8_t, MemorySize>& data) {
+    spdlog::get(sim::LogName::memory)->info("Loading program...");
     std::copy(data.begin(), data.end(), buffer.begin());
 }
 

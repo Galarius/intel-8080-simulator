@@ -34,6 +34,11 @@ public:
     static const uint8_t OP_GROUP_ALU;
     static const uint8_t OP_GROUP_SPECIAL;  // ALU Immediate, Branch, Stack, I/O and Machine Contro
 
+    static const uint8_t OP_RP_BC;
+    static const uint8_t OP_RP_DE;
+    static const uint8_t OP_RP_HL;
+    static const uint8_t OP_RP_SP;
+
     static const uint8_t OP_INST_NOP;
     static const uint8_t OP_INST_HLT;
 
@@ -78,6 +83,7 @@ private:
     sc_dt::sc_uint<8> getRegisterValue(uint8_t regCode);
     void setRegisterValue(uint8_t regCode, sc_dt::sc_uint<8> value);
 
+    // TODO: Convert pc and sp to sc_modules
     sc_dt::sc_uint<16> pc; // Program counter
     sc_dt::sc_uint<16> sp; // Stack pointer
     sc_dt::sc_uint<5> flags;
@@ -99,9 +105,22 @@ public:
         return resetted;
     }
 
+    void doResetting() {
+        std::lock_guard guard(mutex);
+        resetted = true;
+    }
+
     void doneResetting() {
         std::lock_guard guard(mutex);
         resetted = false;
+    }
+
+    sc_dt::sc_uint<16> getSP() {
+        return sp;
+    }
+
+    sc_dt::sc_uint<16> getPC() {
+        return pc;
     }
 
 private:

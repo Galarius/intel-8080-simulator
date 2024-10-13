@@ -74,6 +74,7 @@ TEST_F(ProcessorTests, MVIInstructionTest) {
     auto processor = modules::get<Intel8080>("Intel8080TestBench");
 
     std::array<uint8_t, DEFAULT_MEMORY_SIZE> program = {
+        0b00000000,      // NOP
         0b00000110, 18,  // MVI B, 18
         0b00001110, 19,  // MVI C, 19
         0b00010110, 20,  // MVI D, 20
@@ -96,8 +97,7 @@ TEST_F(ProcessorTests, MVIInstructionTest) {
     EXPECT_EQ(processor->registerL.getValue(), 23);
     EXPECT_EQ(processor->registerA.getValue(), 24);
 
-    // TODO:
-    // EXPECT_EQ(processor.pc.read(), 14);
+    EXPECT_EQ(processor->cu.getPC(), 15);
 }
 
 TEST_F(ProcessorTests, MVI_M_InstructionTest) {
@@ -105,6 +105,7 @@ TEST_F(ProcessorTests, MVI_M_InstructionTest) {
 
     auto processor = modules::get<Intel8080>("Intel8080TestBench");
     std::array<uint8_t, DEFAULT_MEMORY_SIZE> program = {
+        0b00000000,       // NOP
         0b00100110, 0b00000001,  // MVI H, 0b00000001 (H = 0x01)
         0b00101110, 0b00001000,  // MVI L, 0b00001000 (L = 0x08)
         0b00110110, 117,         // MVI M, 117
@@ -131,6 +132,7 @@ TEST_F(ProcessorTests, MVI_M_InstructionTest) {
      auto processor = modules::get<Intel8080>("Intel8080TestBench");
     
      std::array<uint8_t, DEFAULT_MEMORY_SIZE> program = {
+         0b00000000,       // NOP
          0b11000110, 0b00000101, // ADI 5
          0b01110110,             // HLT
      };
@@ -139,4 +141,28 @@ TEST_F(ProcessorTests, MVI_M_InstructionTest) {
      EXPECT_TRUE(WaitForHalt(waitTimeout, processor));
 
      EXPECT_EQ(processor->registerA.getValue(), 5);
+ }
+
+ TEST_F(ProcessorTests, LXIInstructionTest) {
+     auto processor = modules::get<Intel8080>("Intel8080TestBench");
+    
+     std::array<uint8_t, DEFAULT_MEMORY_SIZE> program = {
+         0b00000000,       // NOP
+         0b00000001, 5, 7, // LXI 5 7 (B <- 7, C <- 5)
+         0b00010001, 3, 9, // LXI 3 9 (D <- 9, E <- 3)
+         0b00100001, 6, 2, // LXI 6 2 (H <- 2, L <- 6)
+         0b00110001, 0x34, 0x12, // LXI 0x34 0x12 (SP <- 0x1234)
+         0b01110110,       // HLT
+     };
+     processor->loadMemory(program);
+
+     EXPECT_TRUE(WaitForHalt(waitTimeout, processor));
+
+     EXPECT_EQ(processor->registerB.getValue(), 7);
+     EXPECT_EQ(processor->registerC.getValue(), 5);
+     EXPECT_EQ(processor->registerD.getValue(), 9);
+     EXPECT_EQ(processor->registerE.getValue(), 3);
+     EXPECT_EQ(processor->registerH.getValue(), 2);
+     EXPECT_EQ(processor->registerL.getValue(), 6);
+     EXPECT_EQ(processor->cu.getSP(), 0x1234);
  }

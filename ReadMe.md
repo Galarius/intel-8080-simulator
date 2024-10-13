@@ -18,7 +18,7 @@
 * HLT
 * ALU (ADD, ADC, SUB, SBB, ANA, XRA, ORA, CMP)
 * ALU Immediate (ADI, ADI, SUI, SBI, ANI, XRI, ORI, CMI)
-* MVI
+* MVI, LXI
 * ...
 
 ## Disclaimer

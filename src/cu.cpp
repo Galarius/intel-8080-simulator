@@ -35,6 +35,11 @@ const uint8_t ControlUnit::OP_GROUP_MOV = 0b00000001;
 const uint8_t ControlUnit::OP_GROUP_ALU = 0b00000010;
 const uint8_t ControlUnit::OP_GROUP_SPECIAL = 0b00000011;
 
+const uint8_t ControlUnit::OP_RP_BC = 0b00000000;
+const uint8_t ControlUnit::OP_RP_DE = 0b00000001;
+const uint8_t ControlUnit::OP_RP_HL = 0b00000010;
+const uint8_t ControlUnit::OP_RP_SP = 0b00000011;
+
 const uint8_t ControlUnit::OP_INST_NOP = 0b00000000;
 const uint8_t ControlUnit::OP_INST_HLT = 0b01110110;
 
@@ -46,15 +51,13 @@ ControlUnit::ControlUnit(sc_core::sc_module_name name)
 }
 
 void ControlUnit::reset() {
-
     logger()->trace("Resetting...");
     pc = 0x0;
     sp = 0x0;
     flags = 0x0;
-    {
-        std::lock_guard guard(mutex);
-        resetted = true;
-    }
+#ifdef ENABLE_TESTING
+    doResetting();
+#endif
 }
 
 sc_dt::sc_uint<8> ControlUnit::readReg(sc_dt::sc_uint<8> source) {
@@ -107,6 +110,7 @@ void ControlUnit::execute() {
 
     while (true) {
 
+#ifdef ENABLE_TESTING
         if (isResetted()) {
             writeReg(SELECT_REG_A, 0);
             writeReg(SELECT_REG_B, 0);
@@ -117,8 +121,6 @@ void ControlUnit::execute() {
             writeReg(SELECT_REG_L, 0);
             doneResetting();
         }
-
-#ifdef ENABLE_TESTING
         if (isHalted()) {
             wait();
             continue;
@@ -132,6 +134,9 @@ void ControlUnit::execute() {
         const uint8_t opgroup = (instruction >> 6) & 0b00000011;
         const uint8_t opcode = (instruction >> 3) & 0b00000111;
         const uint8_t source = instruction & 0b00000111;
+        const uint8_t rp = (instruction >> 4) & 0b00000011;
+        const uint8_t rp_opcode = instruction & 0b00001111;
+
 
         if(instruction != OP_INST_NOP) {
             logger()->trace("pc [{}] -> {} (group: {}, code: {}, source: {})", 
@@ -158,7 +163,29 @@ void ControlUnit::execute() {
                     waitFor(6);
                 }
                 ++pc;
+            } else if(rp_opcode == 0b00000001) { // LXI rp,data
+                const sc_dt::sc_uint<8> low = readMemAt(++pc);
+                const sc_dt::sc_uint<8> high = readMemAt(++pc);
+                switch(rp) {
+                    case OP_RP_BC:
+                        writeReg(SELECT_REG_B, high);
+                        writeReg(SELECT_REG_C, low);
+                    break;
+                    case OP_RP_DE:
+                        writeReg(SELECT_REG_D, high);
+                        writeReg(SELECT_REG_E, low);
+                    break;
+                    case OP_RP_HL:
+                        writeReg(SELECT_REG_H, high);
+                        writeReg(SELECT_REG_L, low);
+                    break;
+                    case OP_RP_SP:
+                        sp = (high << 8) | low;
+                    break;
+                }
+                ++pc;
             }
+            
         break;
     
         case OP_GROUP_MOV:
